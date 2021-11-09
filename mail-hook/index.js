@@ -6,6 +6,9 @@ const libmime = require('libmime');
 const sanitizeCode = (input) => ["`", input.replace(/`/g, "'"), "`"].join('');
 const sanitizePreformatted = (input) => ["```", input.replace(/`/g, "'"), "```"].join("\n");
 
+const isForwardedFromGmail = (mailfrom) => mailfrom.includes(`+caf_=pr-log=mail-hook.tsg.ne.jp@`);
+module.exports.isForwardedFromGmail = isForwardedFromGmail;
+
 const decodeMailSubject = (subject) => libmime.decodeWords(subject);
 module.exports.decodeMailSubject = decodeMailSubject;
 
@@ -28,6 +31,7 @@ module.exports.server = ({webClient: slack}) => async (fastify) => {
             if (req.raw.ip !== '127.0.0.1') return res.code(403);
 
             const {addresses, subject, body} = req.body;
+            if (!isForwardedFromGmail(addresses.mailfrom)) return res.send('ok');
 
             const decodedSubject = decodeMailSubject(subject);
             const text = decodeMailBody(body.text);
