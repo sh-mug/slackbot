@@ -3,6 +3,18 @@
 const mailhook = require('./index.js');
 
 describe('mail-hook', () => {
+  describe('isForwardedFromGmail', () => {
+    it('accepts forwarding from Gmail', () => {
+      const mailfrom = "admin+caf_=pr-log=mail-hook.tsg.ne.jp@tsg.jp";
+      expect(mailhook.isForwardedFromGmail(mailfrom)).toBe(true);
+    });
+
+    it('rejects emails from all other Mailfrom', () => {
+      const mailfrom = "spam@example.com";
+      expect(mailhook.isForwardedFromGmail(mailfrom)).toBe(false);
+    });
+  });
+
   describe('decodeMailSubject', () => {
     it('decodes subject in ISO-2022-JP correctly', () => {
       // A real-world example from my inbox
